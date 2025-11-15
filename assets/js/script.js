@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Contact Form Validation
+  // Contact Form Validation and Submission
   const form = document.querySelector("[data-form]");
   const formInputs = document.querySelectorAll("[data-form-input]");
   const formBtn = document.querySelector("[data-form-btn]");
@@ -132,6 +132,49 @@ document.addEventListener("DOMContentLoaded", function () {
         formBtn.setAttribute("disabled", "");
       }
     });
+  });
+
+  // Handle Form Submission with AJAX
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const formData = {
+      fullname: form.querySelector('input[name="fullname"]').value,
+      email: form.querySelector('input[name="email"]').value,
+      message: form.querySelector('textarea[name="message"]').value,
+    };
+
+    // Disable button and show loading state
+    formBtn.disabled = true;
+    formBtn.innerHTML = '<ion-icon name="hourglass-outline"></ion-icon><span>Sending...</span>';
+
+    try {
+      const response = await fetch('https://personal-portfolio-yatharth-backend.onrender.com/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Success message
+        alert('✅ Message sent successfully! Thank you for contacting me.');
+        form.reset();
+      } else {
+        // Error message
+        alert('❌ ' + (result.error || 'Something went wrong. Please try again.'));
+      }
+    } catch (error) {
+      alert('❌ Network error. Please check your connection and try again.');
+      console.error('Error:', error);
+    } finally {
+      // Reset button
+      formBtn.disabled = false;
+      formBtn.innerHTML = '<ion-icon name="paper-plane"></ion-icon><span>Send Message</span>';
+    }
   });
 
   // Page Navigation Functionality
